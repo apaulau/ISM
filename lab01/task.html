@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>Лабораторная работа №1</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+</head>
+
+<body>
+<h1>Лабораторная работа №1</h1>
+
+<p>Осуществить моделирование случайных величин:<br/>
+1. Непрерывной, равномерно распределенной на полуинтервале \( [0, 1) \);<br/>
+2. Дискретной, равномерно распределенной на множестве \( V_N = \{0, 1, \ldots, N–1\} \), \( N \in \{2, 3, 4\} \)  </p>
+
+<p>Для моделирования использовать <strong>линейный конгруэнтный генератор</strong> и <strong>генератор Макларена-Марсальи</strong>. Линейный конгруэнтный генератор имеет вид:<br/>
+\[ 
+  x_{t+1} = (ax_t + c) mod M,
+ \]
+где \( x_1, x_2, \ldots, x_n \) &mdash; выходная последовательность генератора длины \( n \), \( x_0 \) &mdash; начальное значение, \( a \neq 0 \) &mdash; множитель, \( c \) &mdash; приращение, \( M \) &mdash; модуль (все перечисленные параметры &mdash; целые числа). Генератор Макларена-Марсальи реализовать на основе двух линейных конгруэнтных генераторов. Используя выходную последовательность генераторов длины \( n>100 \), вычислить выборочные начальные и центральные моменты порядка \( k \in \{1, 2, 3, 4, 5\} \). Для непрерывной случайной величины построить диаграмму рассеяния (изобразить на плоскости множество точек \( \{(x_0, x_1), (x_1, x_2), \ldots, (x_{n-1}, x_n) \} \)). </p>
+
+<p>Для линейного конгруэнтного генератора использовать различные значения модуля \( M \):<br/>
+1. \( M < 103 \), остальные параметры \( (x_0, a, с, n) \) выбрать самостоятельно;<br/>
+2. \( M > 210 \), остальные параметры выбрать самостоятельно таким образом, чтобы период выходной последовательности был максимальным. </p>
+
+<p>На основе этих двух линейных конгруэнтных генераторов построить генератор Макларена-Марсальи.</p>
+
+</body>
+
+</html>
+
