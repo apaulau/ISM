@@ -95,7 +95,12 @@ mc.solve <- function(A, f, p, M, m = 1000, n = 500)
   })      
 }
 
+# Integral 1
+n <- 1000
+sum(sapply(ksi, function(k) sqrt(1+rexp(1))))/n
+
 mc.integrate(function(x,y) x^2 + y^2, c(0,0), c(1,2))
+
 
 A <- as.matrix(read.table("lab04/A.txt", header=F, sep = " ", as.is=TRUE))
 f <- scan("lab04/f.txt")
