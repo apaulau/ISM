@@ -6,4 +6,5 @@ rand <- make.rand.lsfr()
 sequence <- rand(1000)
 
 monobit.test(sequence)
+otm.test(sequence)
 rev.test(sequence)

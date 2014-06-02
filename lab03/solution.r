@@ -46,7 +46,83 @@ make.rand.weibull <- function(lambda, c, rnd = runif) {
 
 make.rand.nchisq <- function(k,s) {
   rnd=make.rand.norm(m=sqrt(s/k))
-  function(n) sapply(1:n, function(i) sum(rnd(k)))
+  function(n) sapply(1:n, function(i) sum(rnd(k)^2))
+}
+
+#' Pearson Chi-squared test
+#' 
+#' @param sample Pre-generated sample to test with criterion
+#' @param cdfTheor Theoretical CDF
+#' @param epsilon Level of significance
+#'
+#' @return True if test is passed and sample corresponds to the distribution
+#' @return False otherwise
+test.chisquared <- function(sample, cdfTheor, epsilon) 
+{    
+  x_minus = min(sample)
+  x_plus = max(sample)
+  
+  k = 20 #Hardcode!
+  h = (x_plus-x_minus)/k
+  
+  lowBordersPractical <- vector("numeric", length = k)
+  for (i in 2:k) {
+    lowBordersPractical[i] = x_minus+(i-1)*h
+  }
+  lowBordersPractical[1] = -Inf
+  
+  p_i <- vector("numeric", length = k)
+  for (i in 1:k-1) {
+    p_i[i] = cdfTheor(lowBordersPractical[i+1])-cdfTheor(lowBordersPractical[i])
+  }
+  p_i[k] = 1 - cdfTheor(lowBordersPractical[k])
+  
+  n_i <- vector("numeric", length = k)
+  for (i in 1:length(sample)) {
+    j = 1
+    while ((lowBordersPractical[j] <= sample[i]) & (j <= k)) {
+      j = j + 1
+    }
+    n_i[j-1] = n_i[j-1]+1
+  }
+  
+  chi_square = 0
+  for (i in 1:k) {
+    chi_square = chi_square + (n_i[i]-length(sample)*p_i[i])**2/(length(sample)*p_i[i])
+  }
+  
+  delta <- qchisq(1-epsilon, df=k-1)
+  
+  print(chi_square)
+  print(delta)
+  if (chi_square < delta) {
+    return (TRUE)
+  }
+  else {
+    return (FALSE)
+  }
+}
+
+#' Kolmogorov test
+#' 
+#' @param sample Pre-generated sample to test with criterion
+#' @param cdfTheor Theoretical CDF
+#' @param epsilon Level of significance
+#'
+#' @return True if test is passed and sample corresponds to the distribution
+#' @return False otherwise
+test.kolmogorov <- function(sample, cdfTheor, epsilon) 
+{    
+  #TODO find D
+  
+  delta <- invkolmog(epsilon) #TODO
+  
+  if (sqrt(length(sample))*D < delta) {
+    return (TRUE)
+  }
+  else {
+    return (FALSE)
+  }
 }
 
 show <- function (sample) {
@@ -76,9 +152,18 @@ show.poisson <- function (n = 10000, lambda = 5) {
 }
 
 show.normal <- function (m=-3, sigma=4, n=2500) {
-  show(make.rand.norm(m, sigma)(n))
+  m=-3
+  sigma=4
+  n=2500
+  sample <- make.rand.norm(m, sigma)(n)
+  show(sample)
+  test.chisquared(sample, function(x) {pnorm(x,m,sigma)}, 0.05)
 }
 
-show.weibull <- function (lambda=12, c=23) {
-  show(make.rand.weibull(lambda, c)(3700))
+show.weibull <- function (lambda=12, c=23, n=3700) {
+  show(make.rand.weibull(lambda, c)(n))
+}
+
+show.nchisq <- function (k=4, s=7, n=1500) {
+  show(make.rand.nchisq(k,s)(n))
 }

@@ -117,4 +117,4 @@ while (i <= 37) {
   i <- i+1
 }
 
-x <- mc.solve(A, f, seq(0.1, 1, 0.9/37), M, m=100, n=50)
+x <- mc.solve(A, f[1], rep(1/37, 37), M, m=1000, n=500)
