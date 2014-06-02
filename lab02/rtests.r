@@ -22,15 +22,32 @@ monobit.test <- function(sequence, level=0.01) {
   }
 }
 
-otm.test <- function(sequence, m=2, level=0.01) {
+otm.test <- function(sequence, M=10, pattern=c(1,1), level=0.01) {
   n <- length(sequence)
+  m <- length(pattern)
+  
   if (n < 100) {
     warning("It is recommended that each sequence to be tested consist of a minimum of 100 bits")
   }
   
-  B <- c(1, 1)
-  N <- 10
-  M <- n/N
+  lambda <- (M-m+1)/2**m
+#   if (round(lambda) != 2) {
+#     print(paste("lambda: ", lambda))
+#     warning("lambda should be approximately 2")
+#   }
+  
+  eta <- lambda / 2
+  K <- 5
+  
+  P <- function(u, eta) exp(-eta)/2**u * sum(sapply(1:u, function(l) choose(u-1, l-1) * eta**l/factorial(l)))
+  pi <- sapply(1:(K+1), function(i) P(i-1, eta))
+  
+  N <- n/M
+#   if (N*min(pi) < 5) {
+#     print(paste("N: ", N))
+#     warning("N should be chosen so that N*(min*π_i) > 5")
+#     #N <- ceiling(5/min(pi))
+#   }
   
   matcher <- function(pattern, example) { 
     m <- length(pattern) 
@@ -43,21 +60,18 @@ otm.test <- function(sequence, m=2, level=0.01) {
   }
   
   i <- 1
-  v <- numeric(n/m)
+  v <- numeric(M-m+1)
   while (i < n) {
-    match <- matcher(B, sequence[i:i+M])
+    match <- matcher(pattern, sequence[i:(i+M-1)])
     i <- i + M
-    v[match] <- v[match] + 1
+    v[match+1] <- v[match+1] + 1
   }
-  lambda <- (M-m+1)/2**m
-  eta <- lambda / 2
   
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PIIIII
-  chisq <- sum(sapply(1:length(v), FUN=function(i) (v[i] - N*pi[i])**2 / N*pi[i]))
-  print(chisq)
-  p.value <- pgamma(chisq, N/2)
-  print(p.value)
-  print(paste("p-value:", p.value, " with level:", level))
+  schisq <- sapply(1:(K+1), FUN=function(i) (v[i] - N*P(i-1, eta))**2 / (N*P(i-1, eta)))
+  chisq <- sum(schisq)
+  
+  p.value <- pgamma(chisq/2, 5/2)
+
   print(paste("p-value:", p.value, " with level:", level))
   if (p.value < level) {
     print("The sequence is non-random")

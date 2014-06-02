@@ -28,7 +28,8 @@ make.rand.lsfr <- function () {
   function(n) {
     sequence <- c()
     i <- 1
-    while (i < n) {
+    while (i <= n) {
+      print(paste(i/n*100, "%"))
       s1 <- bitAnd(s, 1)
       nextPoly()
       
