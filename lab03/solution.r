@@ -1,9 +1,3 @@
-#' Gemoetric distribution random generator
-#' 
-#' @param p probability of success 
-#' @param runif FO witch produces sequence of uniform values
-#' 
-#' @return FO witch takes only parameter n- number of values to generate
 make.rand.binom <- function(p, m, rnd = runif) { function(n) replicate(n, sum(sapply(rnd(m), function(a) { ifelse(p-a <= 0, 0, 1)})))}
 
 #' Poisson distribution random generator
@@ -46,16 +40,13 @@ make.rand.norm <- function(m = 0, sigma = 1, N = 64, rnd = runif, rmean = 0.5, r
   function(n) replicate(n, sigma*(sum(rnd(N)) - N*rmean) / (sqrt(rvar*N)) + m) 
 }
 
-#' Cauchy random generator
-#' 
-#' @param loc localisation parameter
-#' @param scale scale parameter
-#' 
-#' @param runif uniform random values generator
-#' 
-#' @return FO witch takes only parameter n- number of values to generate
 make.rand.weibull <- function(lambda, c, rnd = runif) {
   function(n) (-1/lambda * log(rnd(n)))**(1/c)
+}
+
+make.rand.nchisq <- function(k,s) {
+  rnd=make.rand.norm(m=sqrt(s/k))
+  function(n) sapply(1:n, function(i) sum(rnd(k)))
 }
 
 show <- function (sample) {
