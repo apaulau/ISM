@@ -14,11 +14,16 @@ take.last <- function(v, n = 1) {v[((length(v)-n + 1):length(v))]}
 #' @return first n vector elements
 take.first <- function(v, n = 1) {v[1:n]}
 
-prob.ind <- function(p, n = 1, rnd = runif)
+prob.ind <- function(p, rnd = runif)
 {
-  t <- cumsum(c(0, p))
-  t[which(p==0) + 1] <- NaN
-  replicate(n, take.last(which(t < rnd(1))))
+  find <- function(pos, prob)
+  {
+    ifelse(prob[pos] == 0, find(pos + 1, prob), pos)
+  }
+  t <-  cumsum(p)
+  t[which(p == 0)]  <- NaN
+  pos <- which(t < rnd(1))
+  return(find(ifelse(length(pos) == 0, 1, pos + 1), p))
 }
 
 ## Markov chain #################################################################################
@@ -30,11 +35,14 @@ prob.ind <- function(p, n = 1, rnd = runif)
 #' @return FO witch takes only parameter n- number of values to generate
 make.markov <- function(p, m)
 {
-  last <- -1
+  last <<- -1
   function(n)
-  {
+  {            
     gen_next <- function() last <<- ifelse(last == -1, prob.ind(p), prob.ind(m[last, ]) )
-    replicate(n, gen_next())
+    sapply(1:n, function(i) 
+    {      
+      gen_next()
+    })
   }
 }
 
@@ -69,14 +77,15 @@ mc.solve <- function(A, f, p, M, m = 1000, n = 500)
   {
     print(paste(1, ":", i/len*100))
     h <- H[i, ]
-    sum(sapply(1:m, function(j) {
-#       print(paste(2, ":", t/m*100))
+    sum(sapply(1:m, function(j)
+    {
       chain <- make.markov(h, M)(n)
       Q <- c(ifelse(
         p[take.first(chain)] > 0, 
         h[take.first(chain)] / p[take.first(chain)], 
         0))        
-      sapply(2:n, function(k) {
+      sapply(2:n, function(k)
+      {         
         Q <<- c(Q, ifelse(M[chain[k-1], chain[k]] > 0, Q[k-1] * A[chain[k-1],chain[k]] / M[chain[k-1], chain[k]], 0))
       })              
       
@@ -103,4 +112,4 @@ while (i <= 37) {
   i <- i+1
 }
 
-mc.solve(A, f, c(1, rep(0,36)), M, m=100, n=50)
+x <- mc.solve(A, f, seq(0.1, 1, 0.9/37), M, m=100, n=50)
