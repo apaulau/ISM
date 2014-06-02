@@ -65,13 +65,13 @@ mc.solve <- function(A, f, p, M, m = 1000, n = 500)
 {
   len <- length(f)
   H <- diag(len)
-  sapply(1:len, function(t)
+  sapply(1:len, function(i)
   {
-    print(paste(1, ":", t/len*100))
-    h <- H[t, ]
-    sum(sapply(1:m, function(t) {
+    print(paste(1, ":", i/len*100))
+    h <- H[i, ]
+    sum(sapply(1:m, function(j) {
 #       print(paste(2, ":", t/m*100))
-      chain <- make.markov(p, M)(n)
+      chain <- make.markov(h, M)(n)
       Q <- c(ifelse(
         p[take.first(chain)] > 0, 
         h[take.first(chain)] / p[take.first(chain)], 
@@ -94,8 +94,13 @@ f <- scan("lab04/f.txt")
 i <- 1
 M <- matrix(nrow=37, ncol=37)
 while (i <= 37) {
-  M[i,] <- rep(0.5,37)
+  j <- 1
+  s <- sum(A[i,])
+  while (j <= 37) {
+    M[i, j] <- A[i, j]/s
+    j <- j+1
+  }
   i <- i+1
 }
 
-mc.solve(A, f, rep(0.5, 37), M)
+mc.solve(A, f, c(1, rep(0,36)), M, m=100, n=50)
