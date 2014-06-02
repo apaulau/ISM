@@ -14,6 +14,30 @@ take.last <- function(v, n = 1) {v[((length(v)-n + 1):length(v))]}
 #' @return first n vector elements
 take.first <- function(v, n = 1) {v[1:n]}
 
+prob.ind <- function(p, n = 1, rnd = runif)
+{
+  t <- cumsum(c(0, p))
+  t[which(p==0) + 1] <- NaN
+  replicate(n, take.last(which(t < rnd(1))))
+}
+
+## Markov chain #################################################################################
+#' Markov chain generator
+#' 
+#' @param p vector of aprior probabilities
+#' @param m matrix of probabilities
+#' 
+#' @return FO witch takes only parameter n- number of values to generate
+make.markov <- function(p, m)
+{
+  last <- -1
+  function(n)
+  {
+    gen_next <- function() last <<- ifelse(last == -1, prob.ind(p), prob.ind(m[last, ]) )
+    replicate(n, gen_next())
+  }
+}
+
 #' Monte-Carlo integration
 #' 
 #' @param f function to integrate
@@ -22,8 +46,7 @@ take.first <- function(v, n = 1) {v[1:n]}
 #' @param n number of tries
 #' 
 #' @return numeric result of integration
-mc.integrate <- function(f, lowerBounds, upperBounds, n = 10000)
-{
+mc.integrate <- function(f, lowerBounds, upperBounds, n = 10000) {
   make.transform.finite <- function(l, u) return(function(x) x * (u - l) + l)
   make.diff.transform.finite <- function(l, u) return(function(x) (u - l))
   
@@ -40,19 +63,20 @@ mc.integrate <- function(f, lowerBounds, upperBounds, n = 10000)
 
 mc.solve <- function(A, f, p, M, m = 1000, n = 500)
 {
-  H <- diag(length(f))
-  sapply(1:length(f), function(t)
+  len <- length(f)
+  H <- diag(len)
+  sapply(1:len, function(t)
   {
+    print(paste(1, ":", t/len*100))
     h <- H[t, ]
-    sum(sapply(1:m, function(t)
-    {
+    sum(sapply(1:m, function(t) {
+#       print(paste(2, ":", t/m*100))
       chain <- make.markov(p, M)(n)
       Q <- c(ifelse(
         p[take.first(chain)] > 0, 
         h[take.first(chain)] / p[take.first(chain)], 
         0))        
-      sapply(2:n, function(k)
-      {         
+      sapply(2:n, function(k) {
         Q <<- c(Q, ifelse(M[chain[k-1], chain[k]] > 0, Q[k-1] * A[chain[k-1],chain[k]] / M[chain[k-1], chain[k]], 0))
       })              
       
@@ -62,16 +86,16 @@ mc.solve <- function(A, f, p, M, m = 1000, n = 500)
   })      
 }
 
-n <- 100000
+mc.integrate(function(x,y) x^2 + y^2, c(0,0), c(1,2))
 
-fa <- function(x) exp(-x) * sqrt(1+x)
-fc <- function(x, y) (x**2 + y**2)
+A <- as.matrix(read.table("lab04/A.txt", header=F, sep = " ", as.is=TRUE))
+f <- scan("lab04/f.txt")
 
-fa <- Vectorize(fa)
+i <- 1
+M <- matrix(nrow=37, ncol=37)
+while (i <= 37) {
+  M[i,] <- rep(0.5,37)
+  i <- i+1
+}
 
-isom <-  function(t) ( t - 0.5 )/( (1 - t) * t )
-disom <- function(t) ( t^2 - t + 0.5 )/( (t-1)^2 * t^2)
-
-fc1 <- (function(f) return(function(t,p)f( isom(t), isom(p) ) * disom(t) * disom(p)))(fc) 
-
-mc.integrate(
+mc.solve(A, f, rep(0.5, 37), M)
